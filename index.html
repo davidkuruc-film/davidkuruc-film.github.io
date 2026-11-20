@@ -244,7 +244,7 @@ dialog .info span { display: block; color: var(--muted); text-transform: upperca
           <div class="fopts" id="fopts">
             <button type="button" data-key="selected" aria-pressed="true">Selected Work</button>
             <button type="button" data-key="film" aria-pressed="false">Film &amp; Series</button>
-            <button type="button" data-key="commercial" aria-pressed="false">Commercial</button>
+            <button type="button" data-key="commercial" aria-pressed="false" hidden>Commercial</button>
             <button type="button" data-key="music-video" aria-pressed="false">Music Video</button>
           </div>
         </div>
@@ -556,7 +556,11 @@ render("selected"); /* Selected is the start view */
 window.addEventListener("resize", () => { if (colsNow() !== lastN) { lastN = colsNow(); render(curKey); } });
 
 const cell = v => (v && v !== "–") ? v : '<span class="dash">–</span>';
-document.getElementById("rows").innerHTML = projects.slice().sort((a, b) => (b.year - a.year) || ((b.month || 0) - (a.month || 0))).map(p =>
+/* Interim version: commercials that are not on the main page are hidden (data kept). Set SHOW_ALL_COMMERCIAL = true to bring the Commercial filter and the full commercial list back. */
+const SHOW_ALL_COMMERCIAL = false;
+if (SHOW_ALL_COMMERCIAL) { const cb = document.querySelector('[data-key="commercial"]'); if (cb) cb.hidden = false; }
+const listed = p => SHOW_ALL_COMMERCIAL || p.group !== "commercial" || SELECTED.includes(p.still);
+document.getElementById("rows").innerHTML = projects.filter(listed).sort((a, b) => (b.year - a.year) || ((b.month || 0) - (a.month || 0))).map(p =>
   "<tr><td>" + (p.yearLabel || p.year) + '</td><td class="title">' + p.title + (p.note ? '<span class="note ' + (p.note === "Additional Editor" ? "role" : "info") + '">' + p.note + "</span>" : "") + (p.awards ? '<span class="note aw">' + [].concat(p.awards).join(" \u00b7 ") + "</span>" : "") + "</td><td>" + cell(p.type) + "</td><td>" + cell(p.production) + "</td><td>" + cell(p.director) + "</td><td>" + cell(p.dist) + "</td></tr>"
 ).join("");
 
