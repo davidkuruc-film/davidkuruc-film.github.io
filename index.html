@@ -342,7 +342,7 @@ dialog .info span { display: block; color: var(--muted); text-transform: upperca
   <h3>No cookies, no tracking</h3>
   <p>This website does not use cookies, analytics or advertising tools. The fonts are part of the website and are not loaded from external servers.</p>
   <h3>Embedded videos</h3>
-  <p>Some projects include videos from YouTube (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland; embedded in privacy-enhanced mode via youtube-nocookie.com) or Vimeo (Vimeo, Inc., 330 West 34th Street, New York, NY 10001, USA). Nothing is loaded from these providers when you visit this website or open a project. The video is only loaded after you actively press play; only then is a connection established and your IP address transmitted to the video provider, which may also store cookies or similar technologies on your device. By pressing play, you consent to this (Art. 6(1)(a) GDPR, § 25(1) TDDDG). Please see their privacy policies for details.</p>
+  <p>Some projects include videos from YouTube (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland; embedded in privacy-enhanced mode via youtube-nocookie.com) or Vimeo (Vimeo, Inc., 330 West 34th Street, New York, NY 10001, USA). Nothing is loaded from these providers when you merely visit this website. When you open a project that has a video, the video player is loaded from the provider; only then is a connection established and your IP address transmitted to the video provider, which may also store cookies or similar technologies on your device. By opening the project video, you consent to this (Art. 6(1)(a) GDPR, § 25(1) TDDDG). You can withdraw your consent at any time by closing the video window or not opening videos. Please see their privacy policies for details.</p>
   <h3>Contact by email</h3>
   <p>If you write to me, I process your email address and the content of your message solely to answer your request (Art. 6 para. 1 lit. b and f GDPR). I delete the data once the request is dealt with, unless legal retention periods apply.</p>
   <h3>External links</h3>
@@ -462,6 +462,7 @@ const projects = [
 ];
 
 const WIDE = {
+  allmen: "images/allmen-wide.jpg",
   cassandra: "images/cassandra-wide.jpg",
   doppel: "images/doppel-wide.jpg",
   friends: "images/friends-wide.jpg",
@@ -526,18 +527,29 @@ ftoggle.addEventListener("click", () => {
 });
 
 /* Selected: hand-picked and mixed across all categories. Order = order of this list (image keys). */
-const SELECTED = ["doppel", "cassandra", "peter", "friends", "solomun", "highstakes", "seeed", "nohit", "clueso", "viva", "mv_niemand", "allmen", "vsk2", "fisher", "wirecard", "mayday", "freibad", "mv5d", "deezer", "homemade", "mv_romano"]; /* desktop and tablet: order tuned for the column layout */
+const SELECTED = ["doppel", "cassandra", "peter", "friends", "solomun", "highstakes", "seeed", "nohit", "allmen", "clueso", "viva", "mv_niemand", "vsk2", "fisher", "wirecard", "mayday", "freibad", "mv5d", "deezer", "homemade", "mv_romano"]; /* desktop and tablet: order tuned for the column layout */
 const SELECTED_MOBILE = ["doppel", "peter", "cassandra", "solomun", "friends", "highstakes", "nohit", "allmen", "clueso", "viva", "wirecard", "mayday", "freibad", "homemade", "fisher", "deezer", "seeed", "mv_niemand", "mv_romano", "vsk2", "mv5d"]; /* phone: single column, this is the reading order */
+/* Desktop (4 columns): fixed layout, top to bottom per column. Tablet and phone use the order in SELECTED. */
+const LAYOUT4 = [
+  ["doppel", "seeed", "viva", "mv5d", "mv_romano"],
+  ["cassandra", "mayday", "nohit", "allmen", "deezer"],
+  ["peter", "solomun", "highstakes", "mv_niemand", "fisher", "freibad"],
+  ["friends", "clueso", "vsk2", "wirecard", "homemade"]
+];
+const STACK = { allmen: "nohit" }; /* Allmen always directly below No Hit Wonder (tablet) */
 function render(key) {
-  const list = key === "selected"
+  let list = key === "selected"
     ? (window.innerWidth <= 560 ? SELECTED_MOBILE : SELECTED).map(k => projects.find(p => p.still === k)).filter(Boolean)
     : projects.filter(p => p.featured && (p.group === key || p.also === key));
   if (key === "music-video") { const a = list.findIndex(p => p.still === "clueso"), c = list.findIndex(p => p.still === "solomun"); if (a > -1 && c > -1) [list[a], list[c]] = [list[c], list[a]]; } /* Jamie Foxx / Solomun first, Clueso takes its old slot */
   grid.innerHTML = "";
   if (!list.length) { grid.innerHTML = '<p class="empty">Projects coming soon.</p>'; return; }
   const n = window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 4;
+  const fixed = key === "selected" && n === 4;
+  if (fixed) list = LAYOUT4.flat().map(k => list.find(p => p.still === k)).filter(Boolean).concat(list.filter(p => !LAYOUT4.flat().includes(p.still)));
   const cols = [], hs = [];
   for (let c = 0; c < n; c++) { const d = document.createElement("div"); d.className = "col"; grid.appendChild(d); cols.push(d); hs.push(0); }
+  const placed = {};
   list.forEach(p => {
     const i = projects.indexOf(p);
     const b = document.createElement("div");
@@ -548,6 +560,8 @@ function render(key) {
     drawStill(b.querySelector("canvas"), p.hues, i, p.still);
     b.addEventListener("click", e => { if (e.target.closest("a")) return; openDialog(p, i); });
     let m = 0; for (let c = 1; c < n; c++) if (hs[c] < hs[m] - 0.001) m = c;
+    if (fixed) { const c = LAYOUT4.findIndex(col => col.includes(p.still)); if (c > -1) m = c; } else if (key === "selected" && n > 1 && STACK[p.still] && placed[STACK[p.still]] !== undefined) m = placed[STACK[p.still]]; /* sits directly under its partner */
+    placed[p.still] = m;
     cols[m].appendChild(b); hs[m] += 1 / (RATIO[p.still] || 16 / 9);
   });
 }
@@ -585,31 +599,29 @@ function openDialog(p, i) {
   const box = document.getElementById("dlg-vid");
   box.querySelectorAll("iframe, .gate").forEach(f => f.remove());
   dlg.showModal();
-  /* Two-click privacy: nothing loads from YouTube or Vimeo until the visitor presses play. */
+  /* One click: opening a project with a video loads the player from YouTube / Vimeo right away (see Privacy Policy). In previews it stays a link. */
   const svc = p.vimeo ? "Vimeo" : p.video ? "YouTube" : "";
   if (!svc) return;
   const url = p.vimeo ? "https://vimeo.com/" + p.vimeo : "https://www.youtube.com/watch?v=" + p.video;
   let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
   const sandboxed = inFrame || location.protocol === "blob:" || /claude|anthropic/i.test(location.hostname);
-  const g = document.createElement(sandboxed ? "a" : "button");
-  g.className = "gate";
-  g.innerHTML = '<span class="pl"></span><small>Play \u00b7 loads from ' + svc + (sandboxed ? " \u2197" : "") + "</small>";
-  g.setAttribute("aria-label", "Play " + p.title + " (loads from " + svc + ")");
-  if (sandboxed) { g.href = url; g.target = "_blank"; g.rel = "noopener noreferrer"; }
-  else {
-    g.type = "button";
-    g.addEventListener("click", () => {
-      const f = document.createElement("iframe");
-      f.title = p.title;
-      f.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media";
-      f.allowFullscreen = true;
-      f.referrerPolicy = "strict-origin-when-cross-origin";
-      f.src = p.vimeo ? "https://player.vimeo.com/video/" + p.vimeo + "?autoplay=1&dnt=1"
-                      : "https://www.youtube-nocookie.com/embed/" + p.video + "?autoplay=1&playsinline=1&rel=0";
-      g.remove(); box.appendChild(f);
-    });
+  if (sandboxed) {
+    const g = document.createElement("a");
+    g.className = "gate";
+    g.innerHTML = '<span class="pl"></span><small>Play \u00b7 loads from ' + svc + " \u2197</small>";
+    g.setAttribute("aria-label", "Play " + p.title + " (opens " + svc + ")");
+    g.href = url; g.target = "_blank"; g.rel = "noopener noreferrer";
+    box.appendChild(g);
+    return;
   }
-  box.appendChild(g);
+  const f = document.createElement("iframe");
+  f.title = p.title;
+  f.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media";
+  f.allowFullscreen = true;
+  f.referrerPolicy = "strict-origin-when-cross-origin";
+  f.src = p.vimeo ? "https://player.vimeo.com/video/" + p.vimeo + "?autoplay=1&dnt=1"
+                  : "https://www.youtube-nocookie.com/embed/" + p.video + "?autoplay=1&playsinline=1&rel=0";
+  box.appendChild(f);
 }
 document.getElementById("dlg-close").addEventListener("click", () => dlg.close());
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
