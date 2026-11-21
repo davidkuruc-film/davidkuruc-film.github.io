@@ -422,7 +422,7 @@ const projects = [
   { title: "High Stakes", awards: ["Filmfest München 2025 – Neues Deutsches Fernsehen", "Blauer Panther – TV &amp; Streaming Award 2026 – Best Actress: Via Jikeli (Nominee)"], still: "highstakes", sub: "ZDFneo", ep: "", type: "TV Series", group: "film", year: 2024, role: "Editor", director: "Marijana Verhoef", production: "Odeon Fiction", dist: "ZDFneo", tags: ["Series"], hues: [10, 340], featured: true, video: "wIKQkrLAXDg", links: [{ label: "Trailer (YouTube)", url: "https://www.youtube.com/watch?v=wIKQkrLAXDg" }, { label: "ZDFmediathek", url: "https://www.zdf.de/serien/high-stakes-100" }] },
   { title: "Allmen und das Geheimnis des Koi", still: "allmen", sub: "ARD Degeto", ep: "", type: "TV Movie", group: "film", year: 2023, role: "Editor", director: "Sinje Köhler", production: "UFA Fiction", dist: "ARD / Degeto", tags: ["TV Movie"], hues: [160, 40], featured: true },
   { title: "Der große Fake – Die Wirecard-Story", still: "wirecard", sub: "RTL / TVNOW", ep: "", type: "TV Movie", group: "film", year: 2021, role: "Editor", director: "Raymond Ley", production: "UFA Fiction", dist: "RTL / TVNOW", tags: ["Docu-Fiction"], hues: [30, 350], featured: true, video: "2sM9Uxlc7vs", links: [{ label: "Trailer (YouTube)", url: "https://www.youtube.com/watch?v=2sM9Uxlc7vs" }] },
-  { title: "Lehman. Gier frisst Herz", awards: ["New York Festivals TV &amp; Film Awards – Silver World Medal"], still: "lehman", sub: "ARD", ep: "", type: "TV Movie", group: "film", year: 2018, role: "Editor", director: "Raymond Ley", production: "AVE Publishing", dist: "ARD / hr", tags: ["TV Movie", "Docudrama"], hues: [40, 210], featured: true, video: "1Y-xOojguIo", links: [{ label: "Trailer (YouTube)", url: "https://www.youtube.com/watch?v=1Y-xOojguIo" }] },
+  { title: "Lehman. Gier frisst Herz", awards: ["New York Festivals TV &amp; Film Awards – Silver World Medal"], still: "lehman", sub: "ARD", ep: "", type: "TV Movie", group: "film", year: 2018, role: "Editor", director: "Raymond Ley", production: "AVE Publishing", dist: "ARD / hr", tags: ["TV Movie", "Docudrama"], hues: [40, 210], featured: true },
   { title: "Schuss in der Nacht", still: "schuss", sub: "ARD / hr", ep: "", note: "Additional Editor", type: "TV Movie", group: "film", year: 2020, role: "Additional Editor", director: "Raymond Ley", production: "AVE Publishing", dist: "ARD / hr", tags: ["TV Movie", "Docudrama"], hues: [220, 10], featured: true },
   { title: "Viva Forever", awards: ["Filmfest München 2021 – Neues Deutsches Kino"], still: "viva", sub: "ZDF – Das kleine Fernsehspiel", ep: "", type: "Feature Film", group: "film", year: 2020, role: "Editor", director: "Sinje Köhler", production: "Filmakademie Baden-Württemberg", dist: "ZDF", tags: ["Feature", "Tragicomedy"], hues: [20, 330], featured: true, video: "xLoLWm0TtN4", links: [{ label: "Trailer (YouTube)", url: "https://www.youtube.com/watch?v=xLoLWm0TtN4" }] },
   { title: "Los Cuatro Vientos", awards: ["Young C. Award 2022", "DOK Leipzig 2021"], still: "cuatro", sub: "SWR", ep: "", note: "Additional Editor", type: "Documentary", group: "film", year: 2019, role: "Additional Editor", director: "Anna-Sophia Richard", production: "Giganten Film", dist: "SWR", tags: ["Documentary"], hues: [220, 20], featured: true },
@@ -531,14 +531,20 @@ ftoggle.addEventListener("click", () => {
 });
 
 /* Selected: hand-picked and mixed across all categories. Order = order of this list (image keys). */
-const SELECTED = ["doppel", "cassandra", "peter", "friends", "solomun", "highstakes", "seeed", "nohit", "allmen", "clueso", "viva", "mv_niemand", "vsk2", "wirecard", "mayday", "freibad", "mv5d", "homemade", "mv_romano"]; /* desktop and tablet: order tuned for the column layout */
-const SELECTED_MOBILE = ["doppel", "peter", "cassandra", "solomun", "friends", "highstakes", "nohit", "allmen", "clueso", "viva", "wirecard", "mayday", "freibad", "homemade", "seeed", "mv_niemand", "mv_romano", "vsk2", "mv5d"]; /* phone: single column, this is the reading order */
+const SELECTED = ["doppel", "cassandra", "peter", "friends", "solomun", "highstakes", "seeed", "nohit", "allmen", "clueso", "viva", "mv_niemand", "vsk2", "wirecard", "mayday", "freibad", "mv5d", "mv_romano"]; /* desktop and tablet: order tuned for the column layout */
+const SELECTED_MOBILE = ["doppel", "peter", "cassandra", "solomun", "friends", "highstakes", "nohit", "allmen", "clueso", "viva", "wirecard", "mayday", "freibad", "seeed", "mv_niemand", "mv_romano", "vsk2", "mv5d"]; /* phone: single column, this is the reading order */
 /* Desktop (4 columns): fixed layout, top to bottom per column. Tablet and phone use the order in SELECTED. */
 const LAYOUT4 = [
   ["doppel", "seeed", "viva", "mv5d", "mv_romano"],
   ["cassandra", "mayday", "nohit", "allmen"],
   ["peter", "solomun", "highstakes", "mv_niemand", "freibad"],
-  ["friends", "clueso", "vsk2", "wirecard", "homemade"]
+  ["friends", "clueso", "vsk2", "wirecard"]
+];
+const FILM4 = [ /* Film page, desktop (4 columns) */
+  ["doppel", "highstakes", "cuatro"],
+  ["cassandra", "freibad", "wirecard", "schuss", "auto"],
+  ["friends", "viva", "clueso", "homemade"],
+  ["nohit", "allmen", "lehman", "mayday"]
 ];
 const STACK = { allmen: "nohit" }; /* Allmen always directly below No Hit Wonder (tablet) */
 function render(key) {
@@ -546,11 +552,13 @@ function render(key) {
     ? (window.innerWidth <= 560 ? SELECTED_MOBILE : SELECTED).map(k => projects.find(p => p.still === k)).filter(Boolean)
     : projects.filter(p => p.featured && (p.group === key || p.also === key));
   if (key === "music-video") { const a = list.findIndex(p => p.still === "clueso"), c = list.findIndex(p => p.still === "solomun"); if (a > -1 && c > -1) [list[a], list[c]] = [list[c], list[a]]; } /* Jamie Foxx / Solomun first, Clueso takes its old slot */
+  if (key === "film") { const a = list.findIndex(p => p.still === "lehman"), c = list.findIndex(p => p.still === "viva"); if (a > -1 && c > -1) [list[a], list[c]] = [list[c], list[a]]; } /* Viva Forever takes Lehman's slot and vice versa */
   grid.innerHTML = "";
   if (!list.length) { grid.innerHTML = '<p class="empty">Projects coming soon.</p>'; return; }
   const n = window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 4;
-  const fixed = key === "selected" && n === 4;
-  if (fixed) list = LAYOUT4.flat().map(k => list.find(p => p.still === k)).filter(Boolean).concat(list.filter(p => !LAYOUT4.flat().includes(p.still)));
+  const LAY = n === 4 ? ({ selected: LAYOUT4, film: FILM4 })[key] : null;
+  const fixed = !!LAY;
+  if (fixed) list = LAY.flat().map(k => list.find(p => p.still === k)).filter(Boolean).concat(list.filter(p => !LAY.flat().includes(p.still)));
   const cols = [], hs = [];
   for (let c = 0; c < n; c++) { const d = document.createElement("div"); d.className = "col"; grid.appendChild(d); cols.push(d); hs.push(0); }
   const placed = {};
@@ -564,7 +572,7 @@ function render(key) {
     drawStill(b.querySelector("canvas"), p.hues, i, p.still);
     b.addEventListener("click", e => { if (e.target.closest("a")) return; openDialog(p, i); });
     let m = 0; for (let c = 1; c < n; c++) if (hs[c] < hs[m] - 0.001) m = c;
-    if (fixed) { const c = LAYOUT4.findIndex(col => col.includes(p.still)); if (c > -1) m = c; } else if (key === "selected" && n > 1 && STACK[p.still] && placed[STACK[p.still]] !== undefined) m = placed[STACK[p.still]]; /* sits directly under its partner */
+    if (fixed) { const c = LAY.findIndex(col => col.includes(p.still)); if (c > -1) m = c; } else if (key === "selected" && n > 1 && STACK[p.still] && placed[STACK[p.still]] !== undefined) m = placed[STACK[p.still]]; /* sits directly under its partner */
     placed[p.still] = m;
     cols[m].appendChild(b); hs[m] += 1 / (RATIO[p.still] || 16 / 9);
   });
