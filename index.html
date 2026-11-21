@@ -226,6 +226,18 @@ dialog .info span { display: block; color: var(--muted); text-transform: upperca
   dialog .info { grid-template-columns: 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .still canvas { transition: none; } }
+/* Black theme */
+:root { --bg: #000000; --text: #f2f2f2; --muted: #8a8a8a; --line: #262626; }
+html, body { background: #000; }
+header.top { background: rgba(0,0,0,.9); }
+.portrait, .about .pt { background: #121212; }
+.tags span { border-color: #3a3a3a; }
+#ptoggle:hover, #ptoggle[aria-expanded="true"] { color: #000; }
+.dash { color: #555; }
+tbody tr:hover td { background: #101010; }
+.about p, dialog.doc p { color: #c8c8c8; }
+dialog::backdrop { background: rgba(0,0,0,.88); }
+dialog { background: #0b0b0b; color: var(--text); }
 </style>
 </head>
 <body>
